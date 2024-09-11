@@ -12,6 +12,7 @@ public class 네번째점 {
 		BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw= new BufferedWriter(new OutputStreamWriter(System.out));
 
+		
 		int a = Integer.parseInt(br.readLine());
 		int b = Integer.parseInt(br.readLine());
 		
