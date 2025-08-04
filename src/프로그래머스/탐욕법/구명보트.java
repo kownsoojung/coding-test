@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.*;
 public class 구명보트 {
 	
-public static void main(String args[]) throws IOException {
+	public static void main(String args[]) throws IOException {
 		
 		solution(new int[]{70,80,50,50}, 100);
 	}
