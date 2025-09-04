@@ -10,76 +10,53 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class 양팔저울 {
+	
+	static boolean[][] wArr;
+	static int max;
+	static int n;
+	static int[] nArr;
 	public static void main(String args[]) throws IOException {
 		BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw= new BufferedWriter(new OutputStreamWriter(System.out));
 		
-		int n = Integer.parseInt(br.readLine());
-		int[] nArr = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+		n = Integer.parseInt(br.readLine());
+		nArr = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 		
 		int k = Integer.parseInt(br.readLine());
 		int[] kArr = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 		
-		int[][] wArr = new int[n][n];
-		boolean[] isTrue = new boolean[400001];
-		wArr[0] = nArr;
-		
-		 Set<Integer> sums = new HashSet<>();
-		int max = 0;
 		for(int a = 0; a < n; a++) {
-			isTrue[nArr[a]] = true;
+			max += nArr[a];
 		}
 		
+		wArr = new boolean[n+1][max+1];
 		
-		for (int mask = 1; mask < (1 << n); mask++) {
-            int sum = 0;
-            for (int i = 0; i < n; i++) {
-                if ((mask & (1 << i)) != 0) { // i번째 원소가 포함되면
-                    sum += nArr[i];
-                }
+		dp(0, 0);
+		
+        for (int weight : kArr) {
+            if (weight > max) {
+                bw.write("N\n");
+            } else {
+                bw.write(wArr[n][weight] ? "Y\n" : "N\n");
             }
-            sums.add(sum);
-            max = sum;
-            
-            isTrue[sum] = true;
         }
-		
-		
-		int[] result = sums.stream().mapToInt(Integer::intValue).toArray();
-		for (int i = 0; i < k; i++) { // 총 가방에 들어갈 개수
-			
-			isYn(kArr[i], result, isTrue, max);
-		}
-		
-		
 		
 		bw.flush();
 		br.close();
 		bw.close();
 	}
+	private static void dp(int idx, int w) {
+		 if (idx > n || wArr[idx][w]) return;
+		 wArr[idx][w] = true;
 
+	        if (idx == n) return;
 
-	private static void isYn(int i, int[] result, boolean[] isTrue, int max) {
-		
-		
-		if (isTrue[i]) {
-			System.out.println("Y");
-			return;
-		}
-		for (int a = 0; a < result.length; a++) {
-			if (i == 1 && result[a] <= 2 ) {
-				System.out.println("Y");
-				return;
-			}
-			
-			if (isTrue[i + result[a]] == true && max - result[a] >= i) {
-				System.out.println("Y");
-				return;
-			}
-		}
-		
-		
-		System.out.println("N");
-		return;
+	        // 1. 추를 안 올림
+	        dp(idx+1, w);
+	        // 2. 한쪽에 올림
+	        dp(idx+1, w + nArr[idx]);
+	        // 3. 반대쪽에 올림 (절대값)
+	        dp(idx+1, Math.abs(w - nArr[idx]));
 	}
+
 }
