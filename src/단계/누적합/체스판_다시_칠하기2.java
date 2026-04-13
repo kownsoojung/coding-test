@@ -8,77 +8,62 @@ import java.io.OutputStreamWriter;
 import java.util.Arrays;
 
 public class 체스판_다시_칠하기2 {
+	
+	static int n, m, k;
+	static String[][] board;
+	
 	public static void main(String args[]) throws IOException {
 		BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
 		BufferedWriter bw= new BufferedWriter(new OutputStreamWriter(System.out));
 		
 		int[] nmk  = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-		int n = nmk[0];
-		int m = nmk[1];
+		n = nmk[0];
+		m = nmk[1];
+		k = nmk[2];
 		
-		int k = nmk[2];
+		board = new String[n][m];
 		
-		String[][] arr = new String[n+1][m+1];
-		
-		for (int a = 0; a < m; a++ ) {
-			arr[a+1] = String.join(" ", br.readLine()).split("");
+		for (int a = 0; a < n; a++ ) {
+			board[a] = br.readLine().split("");
 		}
         
-		int[][] bArr = new int [n+1][m+1];
-		int[][] wArr = new int [n+1][m+1];
 		
-		
-		for (int a = 1; a <=n; a++) {
-			for (int b = 1; b <=m; b++) {
-				String data =arr[a][b];
-				if (a/2 == 1) {
-					if (b == 0) {
-						wArr[a][b] = wArr[a-1][m];
-						bArr[a][b] = bArr[a-1][m];
-						if (data == "B") wArr[a][b] = wArr[a-1][m] + 1;
-						else bArr[a][b] = bArr[a][n-1] + 1;
-					}
-					else if ( b/2 == 0){
-						wArr[a][b] = wArr[a][b-1];
-						bArr[a][b] = bArr[a][b-1];
-						if (data == "B") wArr[a][b] = wArr[a][b-1] + 1;
-						else wArr[a][b] = bArr[a][b-1] + 1;
-					}
-					else {
-						wArr[a][b] = wArr[a][b-1];
-						bArr[a][b] = bArr[a][b-1];
-						if (data == "B") bArr[a][b] = bArr[a][b-1] + 1;
-						else wArr[a][b] = wArr[a][b-1] + 1;
-					}
-				}
-				else {
-					if (b == 0) {
-						wArr[a][b] = wArr[a-1][m];
-						bArr[a][b] = bArr[a-1][m];
-						if (data == "W") wArr[a][b] = wArr[a-1][m] + 1;
-						else bArr[a][b] = bArr[a][n-1] + 1;
-					}
-					else if ( b/2 == 0){
-						wArr[a][b] = wArr[a][b-1];
-						bArr[a][b] = bArr[a][b-1];
-						if (data == "W") wArr[a][b] = wArr[a][b-1] + 1;
-						else wArr[a][b] = bArr[a][b-1] + 1;
-					}
-					else {
-						wArr[a][b] = wArr[a][b-1];
-						bArr[a][b] = bArr[a][b-1];
-						if (data == "W") bArr[a][b] = bArr[a][b-1] + 1;
-						else wArr[a][b] = wArr[a][b-1] + 1;
-					}
-				}
-			}
-		}
-		
-		
-		
-		
-		bw.flush();
-		br.close();
-		bw.close();
-	}
+		int result = Math.min(getMinCost("B"), getMinCost("W"));
+
+        System.out.println(result);
+    }
+
+    private static int getMinCost(String startColor) {
+        int[][] prefixSum = new int[n + 1][m + 1];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                int value = 0;
+                // 현재 칸이 올바른 색상인지 확인
+                String expectedColor;
+                if ((i + j) % 2 == 0) {
+                    expectedColor = startColor;
+                } else {
+                    expectedColor = (startColor == "B") ? "W" : "B";
+                }
+
+                if (board[i][j].equals(expectedColor)) {
+                    value = 1;
+                }
+
+                // 2차원 누적합 계산
+                prefixSum[i + 1][j + 1] = prefixSum[i][j + 1] + prefixSum[i + 1][j] - prefixSum[i][j] + value;
+            }
+        }
+
+        int min = Integer.MAX_VALUE;
+        // K x K 구간합 계산
+        for (int i = k; i <= n; i++) {
+            for (int j = k; j <= m; j++) {
+                int count = prefixSum[i][j] - prefixSum[i - k][j] - prefixSum[i][j - k] + prefixSum[i - k][j - k];
+                min = Math.min(min, count);
+            }
+        }
+        return min;
+    }
 }
